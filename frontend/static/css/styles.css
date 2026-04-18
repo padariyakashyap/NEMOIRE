@@ -225,6 +225,140 @@ body {
   padding: 24px 28px 0;
 }
 
+.grid4 .card:nth-child(4) {
+  border: 2px solid #a855f7;
+}
+
+/* Simulation Control Center */
+.sim-engine-wrap {
+  margin: 20px 28px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+}
+
+.sim-engine-header {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sim-engine-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 4px;
+}
+
+.sim-engine-sub {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.sim-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.sim-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: white;
+  border: 1px solid var(--color-border-primary);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.sim-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
+  border-color: #3b82f6;
+}
+
+.sim-card-icon {
+  width: 44px;
+  height: 44px;
+  background: #f8fafc;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  transition: all 0.3s ease;
+}
+
+.sim-card:hover .sim-card-icon {
+  background: #eff6ff;
+  transform: scale(1.1);
+}
+
+.sim-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 2px;
+}
+
+.sim-card-desc {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.sim-card-status {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 9px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  opacity: 0.5;
+}
+
+/* Active State Styles */
+.sim-card.active {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.sim-card.active .sim-card-status {
+  color: #3b82f6;
+  opacity: 1;
+}
+
+.sim-card.active .sim-card-icon {
+  background: #3b82f6 !important;
+  color: white;
+}
+
+/* Specific color states for cards */
+#sim-inflow:hover { border-color: #3b82f6; box-shadow: 0 8px 20px rgba(59, 130, 246, 0.1); }
+#sim-transport:hover { border-color: #f59e0b; box-shadow: 0 8px 20px rgba(245, 158, 11, 0.1); }
+#sim-density:hover { border-color: #ef4444; box-shadow: 0 8px 20px rgba(239, 68, 68, 0.1); }
+
+#sim-inflow.active { border-color: #3b82f6; background: #eff6ff; }
+#sim-transport.active { border-color: #f59e0b; background: #fffbeb; }
+#sim-density.active { border-color: #ef4444; background: #fef2f2; }
+
+#sim-transport.active .sim-card-icon { background: #f59e0b !important; }
+#sim-density.active .sim-card-icon { background: #ef4444 !important; }
+#sim-transport.active .sim-card-status { color: #f59e0b; }
+#sim-density.active .sim-card-status { color: #ef4444; }
+
 .grid4 .card:nth-child(1) {
   background: linear-gradient(135deg, #eff6ff, rgba(255, 255, 255, 0.95));
   border: 2px solid #60a5fa;
@@ -956,4 +1090,120 @@ canvas {
   .risk-label span {
     font-size: 9px;
   }
+}
+
+/* --- EMERGENCY PROTOCOL SEQUENTIAL UI --- */
+.protocol-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.protocol-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(180, 83, 9, 0.15);
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: stepEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+[data-theme="dark"] .protocol-step {
+  background: rgba(15, 23, 42, 0.3);
+  border-color: rgba(245, 158, 11, 0.1);
+  color: #fde68a;
+}
+
+.escalation-track {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(4px);
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: pulseEscalation 2s infinite ease-in-out;
+  letter-spacing: 0.02em;
+}
+
+.ai-bot {
+  font-size: 16px;
+  filter: drop-shadow(0 0 8px rgba(255,255,255,0.4));
+}
+
+@keyframes pulseEscalation {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2); }
+  50% { transform: scale(1.02); box-shadow: 0 0 15px 2px rgba(255, 255, 255, 0.1); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2); }
+}
+
+.protocol-step:hover {
+  transform: translateX(4px);
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(180, 83, 9, 0.3);
+}
+
+.step-number {
+  width: 20px;
+  height: 20px;
+  background: #f59e0b;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+.step-text {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+@keyframes stepEntrance {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.protocol-step:nth-child(2) { animation-delay: 0.1s; }
+.protocol-step:nth-child(3) { animation-delay: 0.2s; }
+
+/* Critical State Overrides */
+.pred-box.critical {
+  background: linear-gradient(90deg, #7f1d1d, #991b1b) !important;
+  border-left-color: #fca5a5 !important;
+  color: #fee2e2 !important;
+  animation: criticalAlertShake 0.5s infinite linear !important;
+  box-shadow: 0 0 40px rgba(153, 27, 27, 0.6) !important;
+}
+
+.step-critical {
+  background: rgba(153, 27, 27, 0.4) !important;
+  border-color: rgba(254, 226, 226, 0.2) !important;
+  color: #fff !important;
+}
+
+@keyframes criticalAlertShake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(2px); }
+  50% { transform: translateX(0); }
+  75% { transform: translateX(-2px); }
+  100% { transform: translateX(0); }
 }

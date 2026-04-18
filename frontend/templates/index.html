@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Suraksha Drishti</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 
 <body>
@@ -14,7 +14,7 @@
 
   <div class="hdr">
     <div class="logo">
-      <img src="WhatsApp Image 2026-04-18 at 3.13.29 PM.jpeg" alt="Suraksha Drishti Logo" class="logo-icon">
+      <img src="/static/assets/logo.jpeg" alt="Suraksha Drishti Logo" class="logo-icon">
       <div>
         <h1>Suraksha Drishti</h1>
         <p>Stampede window predictor · Gujarat pilgrimage corridors</p>
@@ -42,21 +42,6 @@
           <div class="custom-option" onclick="selectCorridor('pavagadh', 'Pavagadh Mahakali', this)">
             <span class="co-icon">⛰️</span>Pavagadh Mahakali
           </div>
-          <div class="custom-option" onclick="selectCorridor('dakor', 'Ranchhodraiji Dakor', this)">
-            <span class="co-icon">🕍</span>Ranchhodraiji Dakor
-          </div>
-          <div class="custom-option" onclick="selectCorridor('shamlaji', 'Shamlaji Temple', this)">
-            <span class="co-icon">🏛️</span>Shamlaji Temple
-          </div>
-          <div class="custom-option" onclick="selectCorridor('nageshwar', 'Nageshwar Jyotirlinga', this)">
-            <span class="co-icon">🐍</span>Nageshwar Jyotirlinga
-          </div>
-          <div class="custom-option" onclick="selectCorridor('bahucharaji', 'Bahucharaji Temple', this)">
-            <span class="co-icon">🦚</span>Bahucharaji Temple
-          </div>
-          <div class="custom-option" onclick="selectCorridor('girnar', 'Girnar Temples', this)">
-            <span class="co-icon">🛕</span>Girnar Temples
-          </div>
         </div>
       </div>
       <span class="badge badge-safe" id="risk-badge">Safe</span>
@@ -66,6 +51,7 @@
             d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
         </svg>
       </button>
+      <span style="font-size:11px;color:var(--color-text-secondary);margin-right:8px" id="weather">--</span>
       <span style="font-size:11px;color:var(--color-text-secondary)" id="clock">--:--:--</span>
     </div>
   </div>
@@ -94,8 +80,19 @@
   </div>
 
   <div class="pred-box" id="pred-box">
-    ⚠ Crush-risk window predicted in <strong id="pred-min">--</strong> minutes — Sustained surge detected. Recommend
-    immediate action.
+    <div style="font-weight:600;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:8px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:18px">⚠</span> 
+        Crush-risk window predicted in <strong id="pred-min">--</strong> minutes
+      </div>
+      <div id="escalation-track" class="escalation-track" style="display:none">
+        <span class="ai-bot">🤖</span> Auto-resolve in <strong id="escalation-timer">--</strong>s
+      </div>
+    </div>
+    <div id="protocol-title" style="font-size:12px;text-transform:uppercase;letter-spacing:0.05em;opacity:0.8;margin-bottom:6px">Emergency Protocol:</div>
+    <div id="protocol-list" class="protocol-steps">
+      <!-- Steps will be injected here -->
+    </div>
   </div>
 
   <div class="main-grid">
@@ -185,8 +182,45 @@
   </div>
 
 
+  <div class="sim-engine-wrap">
+    <div class="sim-engine-header">
+      <div>
+        <h3 class="sim-engine-title">Simulation Control Center</h3>
+        <p class="sim-engine-sub">Run specific digital twin stressors to observe predictive protocol behavior</p>
+      </div>
+    </div>
+    <div class="sim-grid">
+      <div class="sim-card" id="sim-inflow" onclick="triggerSurge('inflow')">
+        <div class="sim-card-icon">🚦</div>
+        <div class="sim-card-body">
+          <div class="sim-card-title">Entry Surge</div>
+          <div class="sim-card-desc">Simulate sudden pilgrimage arrivals at corridors</div>
+        </div>
+        <div class="sim-card-status">Ready</div>
+      </div>
+      <div class="sim-card" id="sim-transport" onclick="triggerSurge('transport')">
+        <div class="sim-card-icon">🚌</div>
+        <div class="sim-card-body">
+          <div class="sim-card-title">Transport Wave</div>
+          <div class="sim-card-desc">Simulate peak bus/auto inflow from terminals</div>
+        </div>
+        <div class="sim-card-status">Ready</div>
+      </div>
+      <div class="sim-card" id="sim-density" onclick="triggerSurge('density')">
+        <div class="sim-card-icon">↗</div>
+        <div class="sim-card-body">
+          <div class="sim-card-title">Density Spike</div>
+          <div class="sim-card-desc">Predict risks during corridor crowd saturation</div>
+        </div>
+        <div class="sim-card-status">Ready</div>
+      </div>
+    </div>
+  </div>
+
   <div class="ctrl-row">
-    <button class="btn-sim" onclick="triggerSurge()">⚡ Inject Synthetic Surge</button>
+    <div style="flex:1;display:flex;gap:12px;align-items:center">
+      <!-- Future extension: Simulation parameters -->
+    </div>
     <button class="btn-replay" onclick="startReplay()">↺ Replay</button>
 
     <button class="btn-pause" id="pause-btn" onclick="togglePause()">⏸ Pause</button>
@@ -197,7 +231,7 @@
 
   <!-- Scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-  <script src="js/app.js"></script>
+  <script src="/static/js/app.js"></script>
 </body>
 
 </html>
