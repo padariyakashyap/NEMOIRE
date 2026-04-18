@@ -59,8 +59,14 @@
           </div>
         </div>
       </div>
-      <div class="badge badge-safe" id="risk-badge">Safe</div>
-      <div id="clock" style="font-family:var(--font-display); font-size:12px; font-weight:700; color:var(--color-text-dim); letter-spacing:1px;">--:--:--</div>
+      <span class="badge badge-safe" id="risk-badge">Safe</span>
+      <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" aria-label="Toggle Theme">
+        <svg id="theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        </svg>
+      </button>
+      <span style="font-size:11px;color:var(--color-text-secondary)" id="clock">--:--:--</span>
     </div>
   </div>
 

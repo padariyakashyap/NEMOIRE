@@ -81,10 +81,10 @@ function computeCPI(inflow, width, density, transport) {
 }
 
 function getRiskLevel(cpi) {
-  if (cpi < 30) return { label: 'Safe', color: '#10b981', cls: 'badge-safe' };
-  if (cpi < 55) return { label: 'Warning', color: '#f59e0b', cls: 'badge-warn' };
-  if (cpi < 75) return { label: 'Danger', color: '#f43f5e', cls: 'badge-danger' };
-  return { label: 'Critical', color: '#e11d48', cls: 'badge-critical' };
+  if (cpi < 30) return { label: 'Safe', color: '#22c55e', bg: 'var(--color-background-success)', text: 'var(--color-text-success)', cls: 'badge-safe' };
+  if (cpi < 55) return { label: 'Warning', color: '#f59e0b', bg: 'var(--color-background-warning)', text: 'var(--color-text-warning)', cls: 'badge-warn' };
+  if (cpi < 75) return { label: 'Danger', color: '#ef4444', bg: 'var(--color-background-danger)', text: 'var(--color-text-danger)', cls: 'badge-danger' };
+  return { label: 'Critical', color: '#b91c1c', bg: '#7c1e1e', text: '#f9c0c0', cls: 'badge-critical' };
 }
 
 function addLog(msg, color) {
@@ -100,16 +100,12 @@ function renderLog() {
   el.innerHTML = logs.map(l => `
     <div class="log-row">
       <div class="log-dot" style="background:${l.color}"></div>
-      <div class="log-time">${l.t}</div>
-      <div class="log-msg">${l.msg}</div>
+      <span class="log-time">${l.t}</span>
+      <span class="log-msg">${l.msg}</span>
     </div>`).join('');
 }
 
 const ctx = document.getElementById('cpi-chart').getContext('2d');
-const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-gradient.addColorStop(0, 'rgba(99, 102, 241, 0.2)');
-gradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
-
 const chart = new Chart(ctx, {
   type: 'line',
   data: {
@@ -117,18 +113,26 @@ const chart = new Chart(ctx, {
     datasets: [{
       label: 'CPI',
       data: cpiHistory,
-      borderColor: '#6366f1',
-      backgroundColor: gradient,
-      borderWidth: 3,
+      borderColor: '#3b82f6',
+      backgroundColor: 'rgba(59,130,246,0.08)',
+      borderWidth: 2,
       pointRadius: 0,
       tension: 0.4,
       fill: true
     }, {
-      label: 'Danger',
+      label: 'Danger threshold',
       data: Array(60).fill(75),
-      borderColor: 'rgba(244, 63, 94, 0.3)',
+      borderColor: 'rgba(239,68,68,0.4)',
       borderWidth: 1,
-      borderDash: [5, 5],
+      borderDash: [4, 4],
+      pointRadius: 0,
+      fill: false
+    }, {
+      label: 'Warning threshold',
+      data: Array(60).fill(55),
+      borderColor: 'rgba(245,158,11,0.4)',
+      borderWidth: 1,
+      borderDash: [3, 3],
       pointRadius: 0,
       fill: false
     }]
@@ -136,15 +140,11 @@ const chart = new Chart(ctx, {
   options: {
     responsive: true,
     maintainAspectRatio: false,
-    animation: { duration: 400 },
+    animation: { duration: 300 },
     plugins: { legend: { display: false } },
     scales: {
       x: { display: false },
-      y: { 
-        min: 0, max: 100, 
-        grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false }, 
-        ticks: { font: { size: 10, family: 'Inter', weight: 600 }, color: '#64748b', stepSize: 25 } 
-      }
+      y: { min: 0, max: 100, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 10 }, color: 'rgba(0,0,0,0.5)', stepSize: 25 } }
     }
   }
 });
@@ -156,12 +156,8 @@ function updateActionReduction() {
   if (actions.entry) r += 8;
   actionReduction = r;
   const label = document.getElementById('action-impact-label');
-  if (r === 0) {
-    label.textContent = 'No actions active';
-    label.style.color = 'var(--color-text-dim)';
-  } else {
-    label.innerHTML = `Active interventions reducing CPI by <span style="color:var(--color-success); font-weight:800">−${r}</span>`;
-  }
+  if (r === 0) label.textContent = 'No actions active';
+  else label.innerHTML = `Active interventions reducing CPI by <strong style="color:var(--color-text-success)">−${r}</strong>`;
 }
 
 function toggleAction(name) {
@@ -169,12 +165,12 @@ function toggleAction(name) {
   const btn = document.getElementById('btn-' + name);
   btn.classList.toggle('active', actions[name]);
   updateActionReduction();
-  const verb = actions[name] ? 'Deployed' : 'Withdrawn';
-  const colors = { transport: '#f43f5e', divert: '#f59e0b', entry: '#10b981' };
-  const names = { transport: 'Transport Lock', divert: 'Crowd Diversion', entry: 'Entry Regulation' };
+  const verb = actions[name] ? 'Activated' : 'Deactivated';
+  const colors = { transport: '#3b82f6', divert: '#f59e0b', entry: '#22c55e' };
+  const names = { transport: 'Stop transport', divert: 'Divert crowd', entry: 'Slow entry' };
   addLog(`${verb}: ${names[name]}`, colors[name]);
   if (actions[name]) {
-    const delay = 10 + Math.floor(Math.random() * 15);
+    const delay = 15 + Math.floor(Math.random() * 20);
     ackTimes.push(delay);
     setTimeout(() => {
       const avg = Math.round(ackTimes.reduce((a, b) => a + b, 0) / ackTimes.length);
@@ -185,12 +181,71 @@ function toggleAction(name) {
 
 function triggerSurge() {
   surgeActive = true;
-  surgeCountdown = 45;
-  addLog('⚡ Kinetic Surge Detected — Transport Cluster Inbound', '#f43f5e');
-  const pred = document.getElementById('pred-box');
-  pred.classList.add('show');
-  pred.innerHTML = `⚠️ CRITICAL: Crush risk predicted in <strong>${8 + Math.floor(Math.random() * 4)}</strong> minutes. Deploy interventions immediately.`;
+  surgeCountdown = 40;
+  addLog('⚡ Surge simulated — transport wave incoming', '#ef4444');
+  document.getElementById('pred-box').classList.add('show');
+  document.getElementById('pred-min').textContent = (8 + Math.floor(Math.random() * 4));
 }
+
+function changeCorridor(val) {
+  corridor = val;
+  cpiHistory = Array(60).fill(null);
+  addLog('Corridor switched to: ' + val.charAt(0).toUpperCase() + val.slice(1), '#3b82f6');
+}
+
+let whatifSelected = -1;
+const whatifScenarios = [
+  { inflow: 130, density: 4.8, transport: 28 },
+  { inflow: 70, density: 3.2, transport: 18 },
+  { inflow: 22, density: 1.1, transport: 4 }
+];
+function selectWhatif(i) {
+  whatifSelected = whatifSelected === i ? -1 : i;
+  document.querySelectorAll('.whatif-card').forEach((c, j) => c.classList.toggle('selected', j === whatifSelected));
+  if (whatifSelected >= 0) {
+    const s = whatifScenarios[i];
+    const c = CORRIDORS[corridor];
+    const forecast = computeCPI(s.inflow, c.width, s.density, s.transport);
+    const scenarioNames = ['Kinetic Saturation', 'Structural Bottleneck', 'Optimized Flow'];
+    addLog(`Modeling scenario: "${scenarioNames[i]}" → Forecast: ~${Math.round(forecast)} CPI`, '#8b5cf6');
+  }
+}
+
+let replayHistory = [];
+function startReplay() {
+  replayHistory = [...cpiHistory.filter(v => v !== null)];
+  if (replayHistory.length < 5) { addLog('Not enough data for replay yet', '#888'); return; }
+  replayMode = true;
+  replayIndex = 0;
+  cpiHistory = Array(60).fill(null);
+  document.getElementById('replay-badge').style.display = 'inline-block';
+  document.getElementById('ctrl-hint').textContent = 'Analyzing temporal history...';
+  addLog('↺ Temporal Replay Analysis started', '#8b5cf6');
+  function step() {
+    if (!replayMode || replayIndex >= replayHistory.length) {
+      replayMode = false;
+      document.getElementById('replay-badge').style.display = 'none';
+      document.getElementById('ctrl-hint').textContent = 'Digital twin monitoring active';
+      addLog('Analysis complete', '#22c55e');
+      return;
+    }
+    cpiHistory.push(replayHistory[replayIndex++]);
+    if (cpiHistory.length > 60) cpiHistory.shift();
+    chart.data.datasets[0].data = [...cpiHistory];
+    chart.update();
+    setTimeout(step, 200);
+  }
+  step();
+}
+
+function togglePause() {
+  paused = !paused;
+  document.getElementById('pause-btn').textContent = paused ? '▶ Resume' : '⏸ Pause';
+  document.getElementById('ctrl-hint').textContent = paused ? 'Monitoring paused' : 'Digital twin monitoring active';
+}
+
+let prevRisk = '';
+let dangerStreak = 0;
 
 function simStep() {
   if (paused || replayMode) { setTimeout(simStep, 1000); return; }
@@ -198,12 +253,16 @@ function simStep() {
   tick++;
 
   const timeNoise = Math.sin(tick * 0.12) * 8 + Math.cos(tick * 0.07) * 5;
-  let inflow = (c.baseInflow + timeNoise + (Math.random() - 0.5) * 10) * (surgeActive ? 1.5 : 1);
-  let density = (c.baseDensity + Math.sin(tick * 0.09) * 0.4 + (Math.random() - 0.5) * 0.3) * (surgeActive ? 1.4 : 1);
-  let transport = (c.baseTransport + Math.floor(Math.random() * 4 - 1)) * (surgeActive ? 2 : 1);
+  let inflow = c.baseInflow + timeNoise + (Math.random() - 0.5) * 10;
+  let density = c.baseDensity + Math.sin(tick * 0.09) * 0.4 + (Math.random() - 0.5) * 0.3;
+  let transport = c.baseTransport + Math.floor(Math.random() * 4 - 1);
 
   if (surgeActive) {
     surgeCountdown--;
+    const boost = Math.sin((1 - (surgeCountdown / 40)) * Math.PI) * 40;
+    inflow += boost;
+    density += boost * 0.05;
+    transport += Math.floor(boost * 0.2);
     if (surgeCountdown <= 0) { surgeActive = false; document.getElementById('pred-box').classList.remove('show'); }
   }
 
@@ -224,12 +283,15 @@ function simStep() {
     badge.textContent = risk.label;
     badge.className = 'badge ' + risk.cls;
     if (prevRisk && (risk.label === 'Danger' || risk.label === 'Critical')) {
-      addLog(`🚨 Threshold Violation: ${risk.label} Risk — CPI ${cpi.toFixed(0)}`, risk.color);
+      addLog(`🔴 Risk escalated to ${risk.label} — CPI ${cpi.toFixed(0)}`, risk.color);
     } else if (prevRisk && risk.label === 'Safe') {
-      addLog(`✅ Integrity Restored: Risk Neutral — CPI ${cpi.toFixed(0)}`, '#10b981');
+      addLog(`✅ Risk level returned to Safe — CPI ${cpi.toFixed(0)}`, '#22c55e');
     }
     prevRisk = risk.label;
   }
+
+  if (risk.label === 'Danger' || risk.label === 'Critical') dangerStreak++;
+  else dangerStreak = 0;
 
   const cpiCard = document.getElementById('cpi-val').parentElement;
   cpiCard.className = 'card';
@@ -242,6 +304,7 @@ function simStep() {
   document.getElementById('inflow-val').textContent = inflow.toFixed(0);
   document.getElementById('density-val').textContent = density.toFixed(2);
   document.getElementById('transport-val').textContent = transport;
+  document.getElementById('transport-sub').textContent = CORRIDORS[corridor] ? 'Last 5 min' : '';
 
   const pct = Math.min(100, cpi);
   const riskBar = document.getElementById('risk-bar');
@@ -249,6 +312,7 @@ function simStep() {
   riskBar.className = 'risk-bar-fill ' + (risk.label === 'Safe' ? 'safe' : risk.label === 'Warning' ? 'warn' : 'danger');
   document.getElementById('risk-pct').textContent = Math.round(pct) + '%';
 
+  // Highlight active label
   const labels = document.querySelectorAll('.risk-label span');
   labels.forEach(l => l.classList.remove('active'));
   if (risk.label === 'Safe') labels[0].classList.add('active');
@@ -256,17 +320,24 @@ function simStep() {
   else if (risk.label === 'Danger') labels[2].classList.add('active');
   else if (risk.label === 'Critical') labels[3].classList.add('active');
 
+  // Update Predictive Intelligence (Sensory Grid)
   const trendEl = document.getElementById('intel-trend');
   const prevCpi = cpiHistory[cpiHistory.length - 10] || cpiHistory[0];
   const diff = cpi - prevCpi;
-  trendEl.textContent = Math.abs(diff) < 2 ? 'Stable' : diff > 0 ? 'Rising ↑' : 'Falling ↓';
-  trendEl.style.color = diff > 0 ? 'var(--color-danger)' : diff < -2 ? 'var(--color-success)' : 'var(--color-text-bright)';
+  if (Math.abs(diff) < 2) {
+    trendEl.textContent = 'Stable';
+  } else if (diff > 0) {
+    trendEl.textContent = 'Rising ↑';
+  } else {
+    trendEl.textContent = 'Falling ↓';
+  }
 
-  const waitVal = Math.max(5, Math.round(cpi * 0.4 + (Math.random() * 5)));
+  // Expected Wait (Replacing Confidence)
+  const waitVal = Math.max(5, Math.round(cpi * 0.45 + (Math.random() * 5)));
   document.getElementById('intel-wait').textContent = '≈ ' + waitVal + ' min';
 
   if (tick % 20 === 0) {
-    const forecastTime = new Date(Date.now() + 15 * 60000);
+    const forecastTime = new Date(Date.now() + 15 * 60000); // 15 mins from now
     document.getElementById('intel-peak').textContent = '~' + forecastTime.toTimeString().slice(0, 5);
   }
 
@@ -280,7 +351,7 @@ function simStep() {
   setTimeout(simStep, 1000);
 }
 
-addLog('Vigilance Guard Online — Commencing monitoring', '#10b981');
-addLog('Structural corridor parameters loaded', '#6366f1');
+addLog('System online — monitoring active', '#22c55e');
+addLog('Corridor: Ambaji Temple loaded', '#3b82f6');
 addLog('Prediction engine ready (8–12 min window)', '#8b5cf6');
 simStep();
