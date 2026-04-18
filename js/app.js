@@ -220,7 +220,8 @@ function startReplay() {
   cpiHistory = Array(60).fill(null);
   document.getElementById('replay-badge').style.display = 'inline-block';
   document.getElementById('ctrl-hint').textContent = 'Analyzing temporal history...';
-  addLog('↺ Temporal Replay Analysis started', '#8b5cf6');
+  addLog('↺ Replay started', '#8b5cf6');
+
   function step() {
     if (!replayMode || replayIndex >= replayHistory.length) {
       replayMode = false;
