@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suraksha Drishti</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+  <h2 class="sr-only">Suraksha Drishti — Stampede window predictor dashboard for Gujarat pilgrimage corridors</h2>
+
+  <div class="hdr">
+    <div class="logo">
+      <img src="WhatsApp Image 2026-04-18 at 3.13.29 PM.jpeg" alt="Suraksha Drishti Logo" class="logo-icon">
+      <div>
+        <h1>Suraksha Drishti</h1>
+        <p>Stampede window predictor · Gujarat pilgrimage corridors</p>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="custom-select" id="custom-corridor-sel">
+        <div class="custom-select-trigger" onclick="toggleDropdown()">
+          <span id="custom-select-icon" class="co-icon">🛕</span>
+          <span id="custom-select-text">Ambaji Temple</span>
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </div>
+        <div class="custom-select-options" id="custom-select-opts">
+          <div class="custom-option selected" onclick="selectCorridor('ambaji', 'Ambaji Temple', this)">
+            <span class="co-icon">🛕</span>Ambaji Temple
+          </div>
+          <div class="custom-option" onclick="selectCorridor('dwarka', 'Dwarka Dwarkadhish', this)">
+            <span class="co-icon">🌊</span>Dwarka Dwarkadhish
+          </div>
+          <div class="custom-option" onclick="selectCorridor('somnath', 'Somnath Jyotirlinga', this)">
+            <span class="co-icon">🔱</span>Somnath Jyotirlinga
+          </div>
+          <div class="custom-option" onclick="selectCorridor('pavagadh', 'Pavagadh Mahakali', this)">
+            <span class="co-icon">⛰️</span>Pavagadh Mahakali
+          </div>
+          <div class="custom-option" onclick="selectCorridor('dakor', 'Ranchhodraiji Dakor', this)">
+            <span class="co-icon">🕍</span>Ranchhodraiji Dakor
+          </div>
+          <div class="custom-option" onclick="selectCorridor('shamlaji', 'Shamlaji Temple', this)">
+            <span class="co-icon">🏛️</span>Shamlaji Temple
+          </div>
+          <div class="custom-option" onclick="selectCorridor('nageshwar', 'Nageshwar Jyotirlinga', this)">
+            <span class="co-icon">🐍</span>Nageshwar Jyotirlinga
+          </div>
+          <div class="custom-option" onclick="selectCorridor('bahucharaji', 'Bahucharaji Temple', this)">
+            <span class="co-icon">🦚</span>Bahucharaji Temple
+          </div>
+          <div class="custom-option" onclick="selectCorridor('girnar', 'Girnar Temples', this)">
+            <span class="co-icon">🛕</span>Girnar Temples
+          </div>
+        </div>
+      </div>
+      <span class="badge badge-safe" id="risk-badge">Safe</span>
+      <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" aria-label="Toggle Theme">
+        <svg id="theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        </svg>
+      </button>
+      <span style="font-size:11px;color:var(--color-text-secondary)" id="clock">--:--:--</span>
+    </div>
+  </div>
+
+  <div class="grid4">
+    <div class="card">
+      <div class="card-label">Corridor Pressure Index</div>
+      <div class="card-val" id="cpi-val">--</div>
+      <div class="card-sub" id="cpi-sub">Computing...</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Inflow rate (pax/min)</div>
+      <div class="card-val" id="inflow-val">--</div>
+      <div class="card-sub" id="inflow-sub">Corridor entry</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Density (p/m²)</div>
+      <div class="card-val" id="density-val">--</div>
+      <div class="card-sub">Critical &gt; 4.5</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Transport arrivals</div>
+      <div class="card-val" id="transport-val">--</div>
+      <div class="card-sub" id="transport-sub">Buses + autos</div>
+    </div>
+  </div>
+
+  <div class="pred-box" id="pred-box">
+    ⚠ Crush-risk window predicted in <strong id="pred-min">--</strong> minutes — Sustained surge detected. Recommend
+    immediate action.
+  </div>
+
+  <div class="main-grid">
+    <div class="card">
+      <div class="section-title">Live CPI · 10-minute window</div>
+      <div style="position:relative;height:420px"><canvas id="cpi-chart" role="img"
+          aria-label="Live corridor pressure index time series chart"></canvas></div>
+      <div class="risk-bar-wrap">
+        <div class="risk-header">
+          <span class="risk-header-title">Live Risk Level</span>
+          <span class="risk-header-pct" id="risk-pct">0%</span>
+        </div>
+        <div class="risk-bar-bg">
+          <div class="risk-bar-fill safe" id="risk-bar" style="width:0%"></div>
+          <div class="tick tick-1"></div>
+          <div class="tick tick-2"></div>
+          <div class="tick tick-3"></div>
+        </div>
+        <div class="risk-label">
+          <span>Safe</span>
+          <span>Warning</span>
+          <span>Danger</span>
+          <span>Critical</span>
+        </div>
+      </div>
+      <div class="ack-bar">
+        <div class="ack-dot" id="ack-dot"></div>
+        <span id="ack-label">All units acknowledged · Avg response: <strong id="ack-time">—</strong></span>
+      </div>
+
+      <!-- Master UI Addition: Predictive Intelligence Panel -->
+      <div class="intel-section">
+        <div class="intel-header">Predictive Intelligence</div>
+        <div class="intel-grid">
+          <div class="intel-item item-trend">
+            <span class="intel-label">Real-time Trend</span>
+            <span class="intel-val" id="intel-trend">Stable</span>
+          </div>
+          <div class="intel-item item-peak">
+            <span class="intel-label">Next Peak</span>
+            <span class="intel-val" id="intel-peak">~14:30 PM</span>
+          </div>
+          <div class="intel-item item-wait">
+            <span class="intel-label">Expected Wait</span>
+            <span class="intel-val" id="intel-wait">≈ 12 min</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" style="margin-bottom:10px">
+        <div class="section-title">Interactive Response System</div>
+        <button class="action-btn" id="btn-transport" onclick="toggleAction('transport')">
+          <div class="ai-icon">🚌</div>
+          <div>
+            <div style="font-weight:500">Stop transport</div>
+            <div style="font-size:11px;color:var(--color-text-secondary)">Halt bus & auto inflow</div>
+          </div>
+          <span class="impact">CPI −18</span>
+        </button>
+        <button class="action-btn" id="btn-divert" onclick="toggleAction('divert')">
+          <div class="ai-icon">↗</div>
+          <div>
+            <div style="font-weight:500">Divert crowd</div>
+            <div style="font-size:11px;color:var(--color-text-secondary)">Open alternate gate</div>
+          </div>
+          <span class="impact">CPI −12</span>
+        </button>
+        <button class="action-btn" id="btn-entry" onclick="toggleAction('entry')">
+          <div class="ai-icon">🚦</div>
+          <div>
+            <div style="font-weight:500">Slow entry</div>
+            <div style="font-size:11px;color:var(--color-text-secondary)">Batch token system</div>
+          </div>
+          <span class="impact">CPI −8</span>
+        </button>
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-top:4px" id="action-impact-label">No actions
+          active</div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Event log</div>
+        <div class="log-wrap" id="event-log"></div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="ctrl-row">
+    <button class="btn-sim" onclick="triggerSurge()">⚡ Inject Synthetic Surge</button>
+    <button class="btn-replay" onclick="startReplay()">↺ Temporal Replay Analysis</button>
+    <button class="btn-pause" id="pause-btn" onclick="togglePause()">⏸ Pause</button>
+    <span class="replay-badge" id="replay-badge">REPLAY</span>
+    <span style="font-size:11px;color:var(--color-text-secondary);margin-left:4px" id="ctrl-hint">Digital twin
+      monitoring active</span>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>
