@@ -48,10 +48,8 @@ document.addEventListener('click', function(e) {
   }
 });
 
-// Theme Initialization
-let currentTheme = 'dark';
-document.body.setAttribute('data-theme', currentTheme);
-
+// Theme Toggle Logic
+let currentTheme = 'light';
 function toggleTheme() {
   currentTheme = currentTheme === 'light' ? 'dark' : 'light';
   document.body.setAttribute('data-theme', currentTheme);
@@ -63,15 +61,9 @@ function toggleTheme() {
     iconPath.setAttribute('d', 'M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z');
   }
 
-  updateChartTheme();
-}
-
-function updateChartTheme() {
   if (typeof chart !== 'undefined') {
-    const isDark = currentTheme === 'dark';
-    const gridColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
-    const textColor = isDark ? '#94a3b8' : '#64748b';
-    
+    const gridColor = currentTheme === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)';
+    const textColor = currentTheme === 'dark' ? '#cbd5e1' : '#64748b';
     chart.options.scales.x.grid.color = gridColor;
     chart.options.scales.y.grid.color = gridColor;
     chart.options.scales.x.ticks.color = textColor;
@@ -89,23 +81,23 @@ function computeCPI(inflow, width, density, transport) {
 }
 
 function getRiskLevel(cpi) {
-  if (cpi < 30) return { label: 'Safe', color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)', cls: 'badge-safe' };
-  if (cpi < 55) return { label: 'Warning', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)', cls: 'badge-warn' };
-  if (cpi < 75) return { label: 'Danger', color: '#f43f5e', bg: 'rgba(244, 63, 94, 0.1)', cls: 'badge-danger' };
-  return { label: 'Critical', color: '#e11d48', bg: 'rgba(225, 29, 72, 0.2)', cls: 'badge-critical' };
+  if (cpi < 30) return { label: 'Safe', color: '#22c55e', bg: 'var(--color-background-success)', text: 'var(--color-text-success)', cls: 'badge-safe' };
+  if (cpi < 55) return { label: 'Warning', color: '#f59e0b', bg: 'var(--color-background-warning)', text: 'var(--color-text-warning)', cls: 'badge-warn' };
+  if (cpi < 75) return { label: 'Danger', color: '#ef4444', bg: 'var(--color-background-danger)', text: 'var(--color-text-danger)', cls: 'badge-danger' };
+  return { label: 'Critical', color: '#b91c1c', bg: '#7c1e1e', text: '#f9c0c0', cls: 'badge-critical' };
 }
 
 function addLog(msg, color) {
   const now = new Date();
   const t = now.toTimeString().slice(0, 8);
-  logs.push({ t, msg, color });
-  if (logs.length > 30) logs.shift();
+  logs.unshift({ t, msg, color });
+  if (logs.length > 30) logs.pop();
   renderLog();
 }
 
 function renderLog() {
   const el = document.getElementById('event-log');
-  el.innerHTML = logs.slice().reverse().map(l => `
+  el.innerHTML = logs.map(l => `
     <div class="log-row">
       <div class="log-dot" style="background:${l.color}"></div>
       <span class="log-time">${l.t}</span>
@@ -121,20 +113,28 @@ const chart = new Chart(ctx, {
     datasets: [{
       label: 'CPI',
       data: cpiHistory,
-      borderColor: '#6366f1',
-      backgroundColor: (context) => {
-        const chart = context.chart;
-        const {ctx, chartArea} = chart;
-        if (!chartArea) return null;
-        const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-        gradient.addColorStop(0, 'rgba(99, 102, 241, 0.2)');
-        gradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
-        return gradient;
-      },
-      borderWidth: 3,
+      borderColor: '#3b82f6',
+      backgroundColor: 'rgba(59,130,246,0.08)',
+      borderWidth: 2,
       pointRadius: 0,
       tension: 0.4,
       fill: true
+    }, {
+      label: 'Danger threshold',
+      data: Array(60).fill(75),
+      borderColor: 'rgba(239,68,68,0.4)',
+      borderWidth: 1,
+      borderDash: [4, 4],
+      pointRadius: 0,
+      fill: false
+    }, {
+      label: 'Warning threshold',
+      data: Array(60).fill(55),
+      borderColor: 'rgba(245,158,11,0.4)',
+      borderWidth: 1,
+      borderDash: [3, 3],
+      pointRadius: 0,
+      fill: false
     }]
   },
   options: {
@@ -143,24 +143,11 @@ const chart = new Chart(ctx, {
     animation: { duration: 300 },
     plugins: { legend: { display: false } },
     scales: {
-      x: { display: false, grid: { display: false } },
-      y: { 
-        min: 0, max: 100, 
-        grid: { color: 'rgba(255,255,255,0.05)' }, 
-        ticks: { 
-          font: { size: 10 }, 
-          color: '#94a3b8',
-          callback: (v) => v + '%',
-          maxTicksLimit: 5
-        } 
-      }
+      x: { display: false },
+      y: { min: 0, max: 100, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 10 }, color: 'rgba(0,0,0,0.5)', stepSize: 25 } }
     }
   }
 });
-
-// Sync initial chart theme
-updateChartTheme();
-
 
 function updateActionReduction() {
   let r = 0;
