@@ -7,7 +7,7 @@ class DataEngine:
     def __init__(self, file_path=None):
         if file_path is None:
             base_dir = os.path.dirname(os.path.abspath(__file__))
-            file_path = os.path.join(base_dir, '../11.csv')
+            file_path = os.path.join(base_dir, '../data/11.csv')
         self.file_path = file_path
         self.df = None
         self.location_data = {} # Cache for location-specific sub-dataframes
